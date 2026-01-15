@@ -1,0 +1,4 @@
+name: slides-phpunit-shenanigans
+recipe: lamp
+config:
+  webroot: .

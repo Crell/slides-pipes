@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>Piping Hot PHP</title>
+
+  <link rel="stylesheet" href="dist/reset.css">
+  <link rel="stylesheet" href="dist/reveal.css">
+  <!--  <link rel="stylesheet" href="dist/theme/black.css" id="theme">-->
+
+  <link rel="stylesheet" href="custom/custom-theme.css" id="theme" />
+
+  <!-- Theme used for syntax highlighted code -->
+  <link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+
+  <style>
+
+  </style>
+
+</head>
+<body class="skin-blue">
+<div class="reveal">
+  <footer>
+<!--    <img src="assets/makershub.svg" alt="Makershub.ai" />-->
+    <span class="name">@Crell@phpc.social</span>
+  </footer>
+	<div class="slides">
+    <section class="title">
+      <h1>Piping Hot PHP</h1>
+    </section>
+
+    <section id="presenter">
+      <h2>Larry Garfield</h2>
+      <h2><a href="https://phpc.social/@Crell">@Crell@phpc.social</a></h2>
+
+      <div class="layout-col vcentered">
+        <a href="http://bit.ly/php80"><img src="assets/exploring-php80.png" width="175px;" alt="Cover of Exploring PHP 8.0" /></a>
+        <a href="https://bit.ly/fn-php"><img src="assets/thinking-functionally.png" width="175px;" alt="Cover of Thinking Functionally in PHP" /></a>
+
+        <ul style="text-wrap: nowrap">
+          <li style="margin-top: 1em;">JOB</li>
+          <li style="margin-top: 1em;">PHP-FIG Core Committee</li>
+          <li style="margin-top: 1em;">PHP Core Contributor</li>
+          <li style="margin-top: 1em;">General purpose pedant</li>
+          <li style="margin-top: 1em;"><a href="https://bit.ly/fn-php"><em>Thinking Functionally in PHP</em></a></li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <section>
+      </section>
+    </section>
+
+    <div style="display:none">
+      * First talk on PHP 8.6. :-)
+      * Pipe operator in 8.5 (explain)
+      * PFA in 8.6 (explain)
+      * "Point-free style"
+        * Common in FP, but not unique to FP
+      * Examples with arrays/strings
+        * Borrow from MiDy, RFC, etc.
+      * Examples with higher order functions
+      *
+      * Future scope
+        * Bind operator for custom logic on compose?  (Monads!)
+      *
+
+    </div>
+
+    <section id="final">
+      <div class="layout-1up-2down">
+        <div style="grid-area: top; margin-top: 1em;">
+          <h2>Larry Garfield</h2>
+          <h2><a href="https://phpc.social/@Crell">@Crell@phpc.social</a></h2>
+        </div>
+        <!--
+        <div style="grid-area: left">
+          <h2>All about PHP 8!</h2>
+          <p><a href="https://bit.ly/php80">https://bit.ly/php80</a></p>
+          <p><a href="https://bit.ly/php80"><img src="assets/exploring-php80.png" width="175px;" alt="Cover of Exploring PHP 8.0" /></a></p>
+        </div>
+        <div style="grid-area: right">
+          <h2>Buy my book!</h2>
+          <p><a href="https://bit.ly/fn-php">https://bit.ly/fn-php</a></p>
+          <p><a href="https://bit.ly/fn-php"><img src="assets/thinking-functionally.png" width="175px;" alt="Cover of Thinking Functionally in PHP" /></a></p>
+        </div>
+        -->
+      </div>
+      <h3><a href="https://www.garfieldtech.com/">https://www.garfieldtech.com/</a></h3>
+    </section>
+  </div>
+</div>
+
+<script src="dist/reveal.js"></script>
+<script src="plugin/notes/notes.js"></script>
+<script src="plugin/markdown/markdown.js"></script>
+<script src="plugin/highlight/highlight.js"></script>
+<script src="custom/mermaid.js"></script>
+
+<script>
+  // More info about initialization & config:
+  // - https://revealjs.com/initialization/
+  // - https://revealjs.com/config/
+  Reveal.initialize({
+    hash: true,
+
+    // mermaid initialize config
+    mermaid: {
+       flowchart: {
+         curve: 'linear',
+       },
+    },
+
+    // Learn about plugins: https://revealjs.com/plugins/
+    plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealMermaid ]
+  });
+</script>
+
+<!-- Custom Reveal extension scripts. -->
+<script src="custom/classer.js"></script>
+<script src="custom/countup.js"></script>
+<script src="custom/usecase.js"></script>
+
+</body>
+</html>
