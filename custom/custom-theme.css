@@ -313,10 +313,6 @@ aside {
   border-radius: 2px;
 }
 
-.hljs-ln-line > .hljs-comment {
-  color: var(--color-shadow);
-}
-
 /* This is for inline code */
 .reveal :not(pre) > code {
   color: var(--color-inline-code);
@@ -576,4 +572,10 @@ blockquote strong {
   direction.
    */
   background-size: contain;
+}
+
+/* Code */
+
+.hljs-meta {
+  color: lightgoldenrodyellow;
 }

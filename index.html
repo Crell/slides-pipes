@@ -13,7 +13,8 @@
   <link rel="stylesheet" href="custom/custom-theme.css" id="theme" />
 
   <!-- Theme used for syntax highlighted code -->
-  <link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+  <link rel="stylesheet" href="plugin/highlight/github.css" media="screen and (prefers-color-scheme: light)">
+  <link rel="stylesheet" href="plugin/highlight/github-dark.css" media="screen and (prefers-color-scheme: dark)">
 
   <style>
 
@@ -60,10 +61,12 @@
       * PFA in 8.6 (explain)
       * "Point-free style"
         * Common in FP, but not unique to FP
+      * Railroad programming (borrow from Scott Wlachin with credit)
+        * "Series of tubes" joke?
       * Examples with arrays/strings
         * Borrow from MiDy, RFC, etc.
       * Examples with higher order functions
-      *
+      * Wrap in lifting functions to create eithers.
       * Future scope
         * Bind operator for custom logic on compose?  (Monads!)
       *
