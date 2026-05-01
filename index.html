@@ -41,10 +41,10 @@
         <a href="https://bit.ly/fn-php"><img src="assets/thinking-functionally.png" width="175px;" alt="Cover of Thinking Functionally in PHP" /></a>
 
         <ul style="text-wrap: nowrap">
-          <li style="margin-top: 1em;">JOB</li>
           <li style="margin-top: 1em;">PHP-FIG Core Committee</li>
           <li style="margin-top: 1em;">PHP Core Contributor</li>
           <li style="margin-top: 1em;">General purpose pedant</li>
+          <li style="margin-top: 1em;">Available for hire!</li>
           <li style="margin-top: 1em;"><a href="https://bit.ly/fn-php"><em>Thinking Functionally in PHP</em></a></li>
         </ul>
       </div>
@@ -52,13 +52,318 @@
 
     <section>
       <section>
+        <p class="bigtext">Welcome to the first ever talk on PHP 8.6!</p>
+        <p class="bigtext fragment">Let's talk about PHP 5.3</p>
+      </section>
+      <section>
+        <p>It's been a long road...</p>
+        <img src="assets/Enterprise_NX-01.webp" alt="The USS Enterprise from Star Trek, NX-01" data-credit="https://memory-alpha.fandom.com/wiki/Enterprise_(NX-01)">
+        <p>... getting from there to here</p>
+        <aside class="notes">
+          <ul>
+            <li>Admit it, who can hear the theme song in their heads?</li>
+          </ul>
+        </aside>
+      </section>
+    </section>
+    <section>
+      <section>
+        <h2>2009</h2>
+        <p><img src="assets/php-logo.svg" alt="The PHP logo"></p>
+        <p class="bigtext">PHP 5.3: So old it doesn't have its own logo</p>
+      </section>
+      <section data-auto-animate data-auto-animate-id="closures">
+        <h3>Closures</h3>
+         <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
+         $c = 5;
+
+         $fn = function ($a, $b) use ($c) {
+           return ($a * $b) * $c;
+         };
+
+         print $fn(2, 3); // 25
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Didn't have primitive types or return types yet</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="closures">
+        <h3>Closures with references</h3>
+         <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
+         $c = 5;
+
+         $fn = function ($a, $b) use (&$c) {
+           return ($a * $b) * $c;
+         };
+
+         $c = 2;
+
+         print $fn(2, 3); // 10
+        </code></pre>
+      </section>
+      <section data-auto-animate data-auto-animate-id="closures">
+        <h3>How closures really work</h3>
+         <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
+         $c = 5;
+
+         class Closure_abc123 extends Closure {
+           public function __construct(private $c) {}
+
+           public function __invoke(int $a, int $b) {
+             return ($a * $b) * $this->c;
+           }
+         }
+         $fn = new Closure_abc123($c);
+
+         print $fn(2, 3); // 25
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>This is what the compiler actually does internally.</li>
+            <li><code>__invoke</code> lets any object get called directly.</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="closures">
+        <h3>DIY</h3>
+         <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
+         $c = 5;
+
+         class Computation {
+           public function __construct(private $c) {}
+
+           public function __invoke(int $a, int $b) {
+             return ($a * $b) * $this->c;
+           }
+         }
+         $fn = new Computation($c);
+
+         print $fn(2, 3); // 25
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>This is what the compiler actually does internally.</li>
+            <li><code>__invoke</code> lets any object get called directly.</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <p class="bigtext">And then the world was silent for many a year...</p>
+      </section>
+    </section>
+    <section>
+      <section>
+        <h2>2019</h2>
+        <p style="background-color: #aeb2d5" ><img src="assets/php7-logo.svg" alt="PHP 7"></p>
+        <p class="bigtext">PHP 7.4: Doesn't have its own logo, but PHP 7 has one?</p>
+        <aside class="notes">
+          <ul>
+            <li>We had to wait a decade for this...</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="closures">
+        <h3>Old Closures</h3>
+        <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
+         $c = 5;
+
+         $fn = function (int $a, int $b) use ($c): int {
+           return ($a * $b) * $c;
+         };
+
+         print $fn(2, 3); // 25
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>We have types now!</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="closures">
+        <h3>Short Closures</h3>
+        <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
+         $c = 5;
+
+         $fn = fn (int $a, int $b): int => ($a * $b) * $c;
+
+         print $fn(2, 3); // 25
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Auto-captures used variables</li>
+            <li>By-value only (this is good)</li>
+            <li>Way, way easier to use, so were used more often</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="closures">
+        <h3>Short Closures</h3>
+        <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
+        $arr = [1, 2, 3, 4, 5];
+
+        // Doing this with long-closures was just fugly.
+        $odds = array_filter($arr, fn(int $v): bool => (bool) $v % 2);
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Easy to use = used more often = opens up more possibilities</li>
+            <li>Still cumbersome in some cases</li>
+          </ul>
+        </aside>
+      </section>
+    </section>
+    <section>
+      <section>
+        <h2>2021</h2>
+        <p><img src="assets/php81-logo.svg" alt="PHP 8.1"></p>
+        <p class="bigtext">PHP 8.1: Now with per-release logos!</p>
+      </section>
+      <section data-auto-animate data-auto-animate-id="closures">
+        <h3>A common pattern</h3>
+        <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
+        function is_odd(int $v): bool {
+          return (bool) $v % 2;
+        }
+
+        $arr = [1, 2, 3, 4, 5];
+
+        $odds = array_filter($arr, fn(int $v): bool => is_odd($v));
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Just as before, there's needless syntax flotsam around.  Can we do better?</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="closures">
+        <h3>First-class callables</h3>
+        <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
+        function is_odd(int $v): bool {
+          return (bool) $v % 2;
+        }
+
+        $arr = [1, 2, 3, 4, 5];
+
+        $odds = array_filter($arr, is_odd(...));
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>dot dot DOOOOT</li>
+            <li>"Make a closure that has the same signature as this function</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="closures">
+        <h3>Internally...</h3>
+        <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
+        function is_odd(int $v): bool {
+          return (bool) $v % 2;
+        }
+
+        $arr = [1, 2, 3, 4, 5];
+
+        $fn = class() extends Closure {
+          public function __invoke(int $v): bool {
+            return is_odd($v);
+          }
+        }
+
+        $odds = array_filter($arr, $fn);
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Good to know, but rarely use this directly</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <p class="bigtext">This was the consolation prize</p>
+        <p class="fragment bigtext">We tried to get pipes and Parital Function Application, but failed</p>
+      </section>
+    </section>
+    <section>
+      <section>
+        <h2>2025</h2>
+        <p><img src="assets/php85-logo.svg" alt="PHP 8.5"></p>
+        <p class="bigtext">PHP 8.5: Now that we're all caught up...</p>
+      </section>
+      <section data-auto-animate data-auto-animate-id="closures">
+        <h3>A common pattern</h3>
+        <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
+        function is_odd(int $v): bool {
+          return (bool) $v % 2;
+        }
+
+        $arr = [1, 2, 3, 4, 5];
+
+        $odds = array_filter($arr, fn(int $v): bool => is_odd($v));
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Just as before, there's needless syntax flotsam around.  Can we do better?</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="closures">
+        <h3>First-class callables</h3>
+        <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
+        function is_odd(int $v): bool {
+          return (bool) $v % 2;
+        }
+
+        $arr = [1, 2, 3, 4, 5];
+
+        $odds = array_filter($arr, is_odd(...));
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>dot dot DOOOOT</li>
+            <li>"Make a closure that has the same signature as this function</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="closures">
+        <h3>Internally...</h3>
+        <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
+        function is_odd(int $v): bool {
+          return (bool) $v % 2;
+        }
+
+        $arr = [1, 2, 3, 4, 5];
+
+        $fn = class() extends Closure {
+          public function __invoke(int $v): bool {
+            return is_odd($v);
+          }
+        }
+
+        $odds = array_filter($arr, $fn);
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Good to know, but rarely use this directly</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <p class="bigtext">This was the consolation prize</p>
+        <p class="fragment bigtext">We tried to get pipes and Parital Function Application, but failed</p>
+        <p class="fragment bigtext">Wait, tried to get what...?</p>
       </section>
     </section>
 
     <div style="display:none">
       * First talk on PHP 8.6. :-)
-      * Pipe operator in 8.5 (explain)
-      * PFA in 8.6 (explain)
+      * History (been a long road, reference)
+        * PHP 5.3, closures and __invoke()
+        * PHP 7.4, short-closures
+        * PHP 8.1, FCC
+        * PHP 8.5, pipes (explain)
+        * PHP 8.6, PFA (explain)
+      * All part of first-class/higher-order functions: Functions are data like anything else
+      * Easier callbacks (find examples from Serde/AU?)
       * "Point-free style"
         * Common in FP, but not unique to FP
       * Railroad programming (borrow from Scott Wlachin with credit)
@@ -66,8 +371,9 @@
       * Examples with arrays/strings
         * Borrow from MiDy, RFC, etc.
       * Examples with higher order functions
-      * Wrap in lifting functions to create eithers.
+      * Wrap in lifting functions to create maybe/eithers.
       * Future scope
+        * Compose?  (Should probably finish the RFC first)
         * Bind operator for custom logic on compose?  (Monads!)
       *
 
