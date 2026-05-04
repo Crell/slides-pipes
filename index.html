@@ -281,6 +281,7 @@
       <section>
         <p class="bigtext">This was the consolation prize</p>
         <p class="fragment bigtext">We tried to get pipes and Parital Function Application, but failed</p>
+        <p class="fragment bigtext">Wait, tried to get what...?</p>
       </section>
     </section>
     <section>
@@ -289,73 +290,377 @@
         <p><img src="assets/php85-logo.svg" alt="PHP 8.5"></p>
         <p class="bigtext">PHP 8.5: Now that we're all caught up...</p>
       </section>
-      <section data-auto-animate data-auto-animate-id="closures">
-        <h3>A common pattern</h3>
-        <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
-        function is_odd(int $v): bool {
-          return (bool) $v % 2;
-        }
+      <section>
+        <h2>Pipes</h2>
+        <img src="assets/super-mario-pipe.png" alt="A Warp Pipe from Super Mario Brothers">
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>This is fugly, but common</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
+        $arr = ['A', 'B', 'C', 'D', 'E'];
 
-        $arr = [1, 2, 3, 4, 5];
+        $result = array_values(array_filter(is_odd(...), array_map(fn(string $x): bool => ord($x), $arr)));
 
-        $odds = array_filter($arr, fn(int $v): bool => is_odd($v));
         </code></pre>
         <aside class="notes">
           <ul>
-            <li>Just as before, there's needless syntax flotsam around.  Can we do better?</li>
+            <li>This is gross.  Raise your hand if you've done it.</li>
           </ul>
         </aside>
       </section>
-      <section data-auto-animate data-auto-animate-id="closures">
-        <h3>First-class callables</h3>
-        <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
-        function is_odd(int $v): bool {
-          return (bool) $v % 2;
-        }
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>This is better, but still clumsy</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $arr = ['A', 'B', 'C', 'D', 'E'];
 
-        $arr = [1, 2, 3, 4, 5];
-
-        $odds = array_filter($arr, is_odd(...));
+          $temp = array_map(fn(string $x): bool => ord($x), $arr));
+          $temp = array_filter(is_odd(...), $temp);
+          $temp = array_values($temp);
+          $result = $temp;
         </code></pre>
         <aside class="notes">
           <ul>
-            <li>dot dot DOOOOT</li>
-            <li>"Make a closure that has the same signature as this function</li>
+            <li>Very subtley different from previous, if any provided args are inlined function calls</li>
+            <li>Isn't there an easier way to do this?</li>
+            <li>Let's automate away $temp</li>
           </ul>
         </aside>
       </section>
-      <section data-auto-animate data-auto-animate-id="closures">
-        <h3>Internally...</h3>
-        <pre data-id="closures"><code class="php font--18" data-trim data-noescape data-line-numbers>
-        function is_odd(int $v): bool {
-          return (bool) $v % 2;
-        }
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>Much nicer</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $arr = ['A', 'B', 'C', 'D', 'E'];
 
-        $arr = [1, 2, 3, 4, 5];
-
-        $fn = class() extends Closure {
-          public function __invoke(int $v): bool {
-            return is_odd($v);
-          }
-        }
-
-        $odds = array_filter($arr, $fn);
+          $result = $arr
+            |> (fn($x) => array_map(ord(...), $x))
+            |> (fn($x) => array_filter(is_odd(...), $x)
+            |> array_values(...)
+          ;
         </code></pre>
         <aside class="notes">
           <ul>
-            <li>Good to know, but rarely use this directly</li>
+            <li>Compiles to the same as previous slide</li>
+            <li>Optimizes away extra closures where it can</li>
+            <li>Much easier to see what's going on</li>
+            <li>Need parens around inline closures to not confuse the parser</li>
           </ul>
         </aside>
       </section>
       <section>
-        <p class="bigtext">This was the consolation prize</p>
-        <p class="fragment bigtext">We tried to get pipes and Parital Function Application, but failed</p>
-        <p class="fragment bigtext">Wait, tried to get what...?</p>
+        <h3><code>|></code></h3>
+        <ul>
+          <li>Read as "pipe to" or "pass result to"</li>
+          <li class="fragment">Takes only single-param callables</li>
+          <li class="fragment">The more steps there are, the more it helps</li>
+        </ul>
+      </section>
+      <section data-auto-animate data-auto-animate-id="shell-pipes">
+        <h3>Just like Unix pipes</h3>
+        <pre data-id="shell-pipes"><code class="shell font--18" data-trim data-noescape data-line-numbers>
+          ls -l | grep "page" | awk '{print $5 " " $3 " " $9}' | sort -nr | head -5
+        </code></pre>
+        <ol>
+          <li class="fragment">Find all files in the current dir</li>
+          <li class="fragment">Filter to just those that have "page" in the name</li>
+          <li class="fragment">Grab just the size, owner, and filename</li>
+          <li class="fragment">Sort numerically, in descending order</li>
+          <li class="fragment">Trim to just the first 5</li>
+        </ol>
+        <aside class="notes">
+          <ul>
+            <li>See who is using up all your disk space...</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>In PHP, step 1</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $result = scandir('.', SCANDIR_SORT_NONE)
+          ;
+        </code></pre>
+        <ol>
+          <li>Find all files in the current dir</li>
+        </ol>
+        <aside class="notes">
+          <ul>
+            <li></li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>In PHP, step 2</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $result = scandir('.', SCANDIR_SORT_NONE)
+            |> (fn($f) => array_filter(fn($x) => str_contains($x, 'page')))
+          ;
+        </code></pre>
+        <ol>
+          <li>Find all files in the current dir</li>
+          <li>Filter to just those that have "page" in the name</li>
+        </ol>
+        <aside class="notes">
+          <ul>
+            <li></li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>In PHP, step 3</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $result = scandir('.', SCANDIR_SORT_NONE)
+            |> (fn($v) => array_filter($v, fn($x) => str_contains($x, 'page')))
+            |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
+          ;
+        </code></pre>
+        <ol>
+          <li>Find all files in the current dir</li>
+          <li>Filter to just those that have "page" in the name</li>
+          <li>Grab just the size, owner, and filename</li>
+        </ol>
+        <aside class="notes">
+          <ul>
+            <li></li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>In PHP, step 4</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          function sorted(array $a, \Closure $sorter): array {
+            usort($a, $sorter);
+            return $a;
+          }
+
+          function size_sort(SplFileInfo $a, SplFileInfo $b): int {
+            return $a->getSize() <=> $b->getSize();
+          }
+
+          $result = scandir('.', SCANDIR_SORT_NONE)
+            |> (fn($v) => array_filter($v, fn($x) => str_contains($x, 'page')))
+            |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
+            |> (fn($v) => sorted($v, size_sort(...)))
+            |> array_reverse(...)
+          ;
+        </code></pre>
+        <ol>
+          <li>Find all files in the current dir</li>
+          <li>Filter to just those that have "page" in the name</li>
+          <li>Grab just the size, owner, and filename</li>
+          <li>Sort numerically, in descending order</li>
+        </ol>
+        <aside class="notes">
+          <ul>
+            <li></li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>In PHP, step 5</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          function sorted(array $a, \Closure $sorter): array {
+            usort($a, $sorter);
+            return $a;
+          }
+
+          function size_sort(SplFileInfo $a, SplFileInfo $b): int {
+            return $a->getSize() <=> $b->getSize();
+          }
+
+          $result = scandir('.', SCANDIR_SORT_NONE)
+            |> (fn($v) => array_filter($v, fn($x) => str_contains($x, 'page')))
+            |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
+            |> (fn($v) => sorted($v, size_sort(...)))
+            |> array_reverse(...)
+            |> (fn($v) => array_chunk($v, 5)[0])
+          ;
+        </code></pre>
+        <ol>
+          <li>Find all files in the current dir</li>
+          <li>Filter to just those that have "page" in the name</li>
+          <li>Grab just the size, owner, and filename</li>
+          <li>Sort numerically, in descending order</li>
+          <li>Trim to just the first 5</li>
+        </ol>
+        <aside class="notes">
+          <ul>
+            <li></li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>In PHP, step 6</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          function sorted(array $a, \Closure $sorter): array {
+            usort($a, $sorter);
+            return $a;
+          }
+
+          function size_sort(SplFileInfo $a, SplFileInfo $b): int {
+            return $a->getSize() <=> $b->getSize();
+          }
+
+          $result = scandir('.', SCANDIR_SORT_NONE)
+            |> (fn($v) => array_filter($v, fn($x) => str_contains($x, 'page')))
+            |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
+            |> (fn($v) => sorted($v, size_sort(...)))
+            |> array_reverse(...)
+            |> (fn($v) => array_chunk($v, 5)[0])
+            |> (fn($v) => array_map(fn(SplFileInfo $x) => sprintf('%d %s %s, $x->getSize(), $x->getOwner(), $x->getFilename()))
+          ;
+        </code></pre>
+        <ol>
+          <li>Find all files in the current dir</li>
+          <li>Filter to just those that have "page" in the name</li>
+          <li>Grab just the size, owner, and filename</li>
+          <li>Sort numerically, in descending order</li>
+          <li>Trim to just the first 5</li>
+          <li>Format the results for printing</li>
+        </ol>
+        <aside class="notes">
+          <ul>
+            <li>This is OK, but the single-arg requirement means lots of extra floatsam</li>
+            <li>What can we do about it?</li>'
+            <li>Two options, present and future</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>Partial application with higher order functions</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="1-3,12">
+          function sorted(\Closure $sorter): \Closure {
+            return fn(array $a) => usort($a, $sorter);
+          }
+
+          function size_sort(SplFileInfo $a, SplFileInfo $b): int {
+            return $a->getSize() <=> $b->getSize();
+          }
+
+          $result = scandir('.', SCANDIR_SORT_NONE)
+            |> (fn($v) => array_filter($v, fn($x) => str_contains($x, 'page')))
+            |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
+            |> sorted(size_sort(...))
+            |> array_reverse(...)
+            |> (fn($v) => array_chunk($v, 5)[0])
+            |> (fn($v) => array_map(fn(SplFileInfo $x) => sprintf('%d %s %s, $x->getSize(), $x->getOwner(), $x->getFilename()))
+          ;
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>This is looking nicer</li>
+            <li>sorted() now returns a single-param closure, which pipes can use directly</li>
+            <li>We are "partially" "applying" arguments to usort()</li>
+            <li>sorted() is "higher order", because it takes/returns other functions</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>Partial application with higher order functions</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="9-11,18">
+          function sorted(\Closure $sorter): \Closure {
+            return fn(array $a) => usort($a, $sorter);
+          }
+
+          function size_sort(SplFileInfo $a, SplFileInfo $b): int {
+            return $a->getSize() <=> $b->getSize();
+          }
+
+          function take(int $count): \Closure {
+            return fn(array $v) => array_chunk($v, $count)[0];
+          }
+
+          $result = scandir('.', SCANDIR_SORT_NONE)
+            |> (fn($v) => array_filter($v, fn($x) => str_contains($x, 'page')))
+            |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
+            |> sorted(size_sort(...))
+            |> array_reverse(...)
+            |> take(5)
+            |> (fn($v) => array_map(fn(SplFileInfo $x) => sprintf('%d %s %s, $x->getSize(), $x->getOwner(), $x->getFilename()))
+          ;
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Do the same for grabbing just a certain number of values from the front.</li>
+            <li>take() is a common standard name for this</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>Partial application with higher order functions</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="13-15, 18">
+          function sorted(\Closure $sorter): \Closure {
+            return fn(array $a) => usort($a, $sorter);
+          }
+
+          function size_sort(SplFileInfo $a, SplFileInfo $b): int {
+            return $a->getSize() <=> $b->getSize();
+          }
+
+          function take(int $count): \Closure {
+            return fn(array $v) => array_chunk($v, $count)[0];
+          }
+
+          function afilter(\Closure $filter)| \Closure {
+            fn($v) => array_filter($v, $filter);
+          }
+
+          $result = scandir('.', SCANDIR_SORT_NONE)
+            |> afilter(fn($x) => str_contains($x, 'page'))
+            |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
+            |> sorted(size_sort(...))
+            |> array_reverse(...)
+            |> take(5)
+            |> (fn($v) => array_map(fn(SplFileInfo $x) => sprintf('%d %s %s, $x->getSize(), $x->getOwner(), $x->getFilename()))
+          ;
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Another simple one, though doesn't fix everything</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>Partial application with higher order functions</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="17-19,23,27">
+          function sorted(\Closure $sorter): \Closure {
+            return fn(array $a) => usort($a, $sorter);
+          }
+
+          function size_sort(SplFileInfo $a, SplFileInfo $b): int {
+            return $a->getSize() <=> $b->getSize();
+          }
+
+          function take(int $count): \Closure {
+            return fn(array $v) => array_chunk($v, $count)[0];
+          }
+
+          function afilter(\Closure $filter)| \Closure {
+            return fn(array $v) => array_filter($v, $filter);
+          }
+
+          function amap(\Closure $mapper)| \Closure {
+            return fn(array $v) => array_map($mapper, $v);
+          }
+
+          $result = scandir('.', SCANDIR_SORT_NONE)
+            |> afilter(fn($x) => str_contains($x, 'page'))
+            |> amap(fn($x) => new SplFileInfo($x))
+            |> sorted(size_sort(...))
+            |> array_reverse(...)
+            |> take(5)
+            |> amap(fn(SplFileInfo $x) => sprintf('%d %s %s, $x->getSize(), $x->getOwner(), $x->getFilename())
+          ;
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Another simple one, though doesn't fix everything</li>
+          </ul>
+        </aside>
       </section>
     </section>
 
+
     <div style="display:none">
-      * First talk on PHP 8.6. :-)
+        * First talk on PHP 8.6. :-)
       * History (been a long road, reference)
         * PHP 5.3, closures and __invoke()
         * PHP 7.4, short-closures
