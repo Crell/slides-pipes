@@ -52,8 +52,8 @@
 
     <section>
       <section>
-        <p class="bigtext">Welcome to the first ever talk on PHP 8.6!</p>
-        <p class="bigtext fragment">Let's talk about PHP 5.3</p>
+        <p class="oversize">Welcome to the first ever talk on PHP 8.6!</p>
+        <p class="oversize fragment">Let's talk about PHP 5.3</p>
       </section>
       <section>
         <p>It's been a long road...</p>
@@ -70,7 +70,7 @@
       <section>
         <h2>2009</h2>
         <p><img src="assets/php-logo.svg" alt="The PHP logo"></p>
-        <p class="bigtext">PHP 5.3: So old it doesn't have its own logo</p>
+        <p class="oversize">PHP 5.3: So old it doesn't have its own logo</p>
       </section>
       <section data-auto-animate data-auto-animate-id="closures">
         <h3>Closures</h3>
@@ -150,14 +150,14 @@
         </aside>
       </section>
       <section>
-        <p class="bigtext">And then the world was silent for many a year...</p>
+        <p class="oversize">And then the world was silent for many a year...</p>
       </section>
     </section>
     <section>
       <section>
         <h2>2019</h2>
         <p style="background-color: #aeb2d5" ><img src="assets/php7-logo.svg" alt="PHP 7"></p>
-        <p class="bigtext">PHP 7.4: Doesn't have its own logo, but PHP 7 has one?</p>
+        <p class="oversize">PHP 7.4: Doesn't have its own logo, but PHP 7 has one?</p>
         <aside class="notes">
           <ul>
             <li>We had to wait a decade for this...</li>
@@ -218,7 +218,7 @@
       <section>
         <h2>2021</h2>
         <p><img src="assets/php81-logo.svg" alt="PHP 8.1"></p>
-        <p class="bigtext">PHP 8.1: Now with per-release logos!</p>
+        <p class="oversize">PHP 8.1: Now with per-release logos!</p>
       </section>
       <section data-auto-animate data-auto-animate-id="closures">
         <h3>A common pattern</h3>
@@ -279,16 +279,16 @@
         </aside>
       </section>
       <section>
-        <p class="bigtext">This was the consolation prize</p>
-        <p class="fragment bigtext">We tried to get pipes and Parital Function Application, but failed</p>
-        <p class="fragment bigtext">Wait, tried to get what...?</p>
+        <p class="oversize">This was the consolation prize</p>
+        <p class="fragment oversize">We tried to get pipes and Parital Function Application, but failed</p>
+        <p class="fragment oversize">Wait, tried to get what...?</p>
       </section>
     </section>
     <section>
       <section>
         <h2>2025</h2>
         <p><img src="assets/php85-logo.svg" alt="PHP 8.5"></p>
-        <p class="bigtext">PHP 8.5: Now that we're all caught up...</p>
+        <p class="oversize">PHP 8.5: Now that we're all caught up...</p>
       </section>
       <section>
         <h2>Pipes</h2>
@@ -425,16 +425,17 @@
       </section>
       <section data-auto-animate data-auto-animate-id="pipes">
         <h3>In PHP, step 4</h3>
+        <pre data-id="pipes-util"><code class="php font--16" data-trim data-noescape data-line-numbers>
+        function sorted(array $a, \Closure $sorter): array {
+          usort($a, $sorter);
+          return $a;
+        }
+
+        function size_sort(SplFileInfo $a, SplFileInfo $b): int {
+          return $a->getSize() <=> $b->getSize();
+        }
+        </code></pre>
         <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
-          function sorted(array $a, \Closure $sorter): array {
-            usort($a, $sorter);
-            return $a;
-          }
-
-          function size_sort(SplFileInfo $a, SplFileInfo $b): int {
-            return $a->getSize() <=> $b->getSize();
-          }
-
           $result = scandir('.', SCANDIR_SORT_NONE)
             |> (fn($v) => array_filter($v, fn($x) => str_contains($x, 'page')))
             |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
@@ -456,16 +457,17 @@
       </section>
       <section data-auto-animate data-auto-animate-id="pipes">
         <h3>In PHP, step 5</h3>
+        <pre data-id="pipes-util"><code class="php font--16" data-trim data-noescape data-line-numbers>
+        function sorted(array $a, \Closure $sorter): array {
+          usort($a, $sorter);
+          return $a;
+        }
+
+        function size_sort(SplFileInfo $a, SplFileInfo $b): int {
+          return $a->getSize() <=> $b->getSize();
+        }
+        </code></pre>
         <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
-          function sorted(array $a, \Closure $sorter): array {
-            usort($a, $sorter);
-            return $a;
-          }
-
-          function size_sort(SplFileInfo $a, SplFileInfo $b): int {
-            return $a->getSize() <=> $b->getSize();
-          }
-
           $result = scandir('.', SCANDIR_SORT_NONE)
             |> (fn($v) => array_filter($v, fn($x) => str_contains($x, 'page')))
             |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
@@ -489,16 +491,17 @@
       </section>
       <section data-auto-animate data-auto-animate-id="pipes">
         <h3>In PHP, step 6</h3>
+        <pre data-id="pipes-util"><code class="php font--16" data-trim data-noescape data-line-numbers>
+        function sorted(array $a, \Closure $sorter): array {
+          usort($a, $sorter);
+          return $a;
+        }
+
+        function size_sort(SplFileInfo $a, SplFileInfo $b): int {
+          return $a->getSize() <=> $b->getSize();
+        }
+        </code></pre>
         <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
-          function sorted(array $a, \Closure $sorter): array {
-            usort($a, $sorter);
-            return $a;
-          }
-
-          function size_sort(SplFileInfo $a, SplFileInfo $b): int {
-            return $a->getSize() <=> $b->getSize();
-          }
-
           $result = scandir('.', SCANDIR_SORT_NONE)
             |> (fn($v) => array_filter($v, fn($x) => str_contains($x, 'page')))
             |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
@@ -526,15 +529,14 @@
       </section>
       <section data-auto-animate data-auto-animate-id="pipes">
         <h3>Partial application with higher order functions</h3>
-        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="1-3,12">
-          function sorted(\Closure $sorter): \Closure {
-            return fn(array $a) => usort($a, $sorter);
-          }
+        <pre data-id="pipes-util"><code class="php font--16" data-trim data-noescape data-line-numbers>
+        // ...
 
-          function size_sort(SplFileInfo $a, SplFileInfo $b): int {
-            return $a->getSize() <=> $b->getSize();
-          }
-
+        function sorted(\Closure $sorter): \Closure {
+          return fn(array $a) => usort($a, $sorter);
+        }
+        </code></pre>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="4">
           $result = scandir('.', SCANDIR_SORT_NONE)
             |> (fn($v) => array_filter($v, fn($x) => str_contains($x, 'page')))
             |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
@@ -554,20 +556,15 @@
         </aside>
       </section>
       <section data-auto-animate data-auto-animate-id="pipes">
-        <h3>Partial application with higher order functions</h3>
-        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="9-11,18">
-          function sorted(\Closure $sorter): \Closure {
-            return fn(array $a) => usort($a, $sorter);
-          }
+        <h3>Partial application is easy</h3>
+        <pre data-id="pipes-util"><code class="php font--16" data-trim data-noescape data-line-numbers>
+        // ...
 
-          function size_sort(SplFileInfo $a, SplFileInfo $b): int {
-            return $a->getSize() <=> $b->getSize();
-          }
-
-          function take(int $count): \Closure {
-            return fn(array $v) => array_chunk($v, $count)[0];
-          }
-
+        function take(int $count): \Closure {
+          return fn(array $v) => array_chunk($v, $count)[0];
+        }
+        </code></pre>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="6">
           $result = scandir('.', SCANDIR_SORT_NONE)
             |> (fn($v) => array_filter($v, fn($x) => str_contains($x, 'page')))
             |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
@@ -585,24 +582,15 @@
         </aside>
       </section>
       <section data-auto-animate data-auto-animate-id="pipes">
-        <h3>Partial application with higher order functions</h3>
-        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="13-15, 18">
-          function sorted(\Closure $sorter): \Closure {
-            return fn(array $a) => usort($a, $sorter);
-          }
+        <h3>Higher order functions are so simple</h3>
+        <pre data-id="pipes-util"><code class="php font--16" data-trim data-noescape data-line-numbers>
+        // ...
 
-          function size_sort(SplFileInfo $a, SplFileInfo $b): int {
-            return $a->getSize() <=> $b->getSize();
-          }
-
-          function take(int $count): \Closure {
-            return fn(array $v) => array_chunk($v, $count)[0];
-          }
-
-          function afilter(\Closure $filter)| \Closure {
-            fn($v) => array_filter($v, $filter);
-          }
-
+        function afilter(\Closure $filter): \Closure {
+          fn($v) => array_filter($v, $filter);
+        }
+        </code></pre>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="2">
           $result = scandir('.', SCANDIR_SORT_NONE)
             |> afilter(fn($x) => str_contains($x, 'page'))
             |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
@@ -619,28 +607,15 @@
         </aside>
       </section>
       <section data-auto-animate data-auto-animate-id="pipes">
-        <h3>Partial application with higher order functions</h3>
-        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="17-19,23,27">
-          function sorted(\Closure $sorter): \Closure {
-            return fn(array $a) => usort($a, $sorter);
-          }
+        <h3>You can quickly make a lot of them</h3>
+        <pre data-id="pipes-util"><code class="php font--16" data-trim data-noescape data-line-numbers>
+        // ...
 
-          function size_sort(SplFileInfo $a, SplFileInfo $b): int {
-            return $a->getSize() <=> $b->getSize();
-          }
-
-          function take(int $count): \Closure {
-            return fn(array $v) => array_chunk($v, $count)[0];
-          }
-
-          function afilter(\Closure $filter)| \Closure {
-            return fn(array $v) => array_filter($v, $filter);
-          }
-
-          function amap(\Closure $mapper)| \Closure {
-            return fn(array $v) => array_map($mapper, $v);
-          }
-
+        function amap(\Closure $mapper): \Closure {
+          return fn(array $v) => array_map($mapper, $v);
+        }
+        </code></pre>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="3,7">
           $result = scandir('.', SCANDIR_SORT_NONE)
             |> afilter(fn($x) => str_contains($x, 'page'))
             |> amap(fn($x) => new SplFileInfo($x))
@@ -652,7 +627,65 @@
         </code></pre>
         <aside class="notes">
           <ul>
-            <li>Another simple one, though doesn't fix everything</li>
+            <li>Map is an important one</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>Or just utility functions/methods</h3>
+        <pre data-id="pipes-util"><code class="php font--16" data-trim data-noescape data-line-numbers>
+        // ...
+
+        function format_file(\SplFileInfo $f): string {
+          return sprintf('%d %s %s, $x->getSize(), $x->getOwner(), $x->getFilename());
+        }
+        </code></pre>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="7">
+          $result = scandir('.', SCANDIR_SORT_NONE)
+            |> afilter(fn($x) => str_contains($x, 'page'))
+            |> amap(fn($x) => new SplFileInfo($x))
+            |> sorted(size_sort(...))
+            |> array_reverse(...)
+            |> take(5)
+            |> amap(format_file(...))
+          ;
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Just factoring out a utility</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>Self-describing code with pipes</h3>
+        <pre data-id="pipes-util"><code class="php font--16" data-trim data-noescape data-line-numbers>
+        // General purpsoe
+        function sorted(\Closure $sorter): \Closure {}
+        function take(int $count): \Closure {}
+        function afilter(\Closure $filter): \Closure {}
+        function amap(\Closure $mapper): \Closure {}
+
+        // Task specific
+        function size_sort(SplFileInfo $a, SplFileInfo $b): int { }
+        function format_file(\SplFileInfo $f): string {}
+        </code></pre>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $result = scandir('.', SCANDIR_SORT_NONE)
+            |> afilter(fn($x) => str_contains($x, 'page'))
+            |> amap(fn($x) => new SplFileInfo($x))
+            |> sorted(size_sort(...))
+            |> array_reverse(...)
+            |> take(5)
+            |> amap(format_file(...))
+          ;
+        </code></pre>
+        <p class="fragment oversize">See <a href="github.com/Crell/fp">Crell/fp</a></p>
+        <aside class="notes">
+          <ul>
+            <li>Any of these could be methods, just as easily</li>
+            <li>Result "describes itself"</li>
+            <li>And we have reusable tools to use on the next one!</li>
+            <li>Whole collection of ready-made robust higher order functions</li>
           </ul>
         </aside>
       </section>
