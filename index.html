@@ -781,7 +781,86 @@
           </ul>
         </aside>
       </section>
-
+      <section>
+        <h2>Real-world uses</h2>
+        <pre><code class="php font--16" data-trim data-noescape data-line-numbers>
+          // Provide all but one argument
+          $c = array_map(strtoupper(...), ?);
+          $c = array_filter(?, is_numeric(...));
+        </code></pre>
+        <div class="fragment">
+          <pre><code class="php font--16" data-trim data-noescape data-line-numbers>
+            // Provide one or two values to start with, and "the rest".
+            $c = stuff(1, 'two', ...);
+          </code></pre>
+        </div>
+        <div class="fragment">
+          <pre><code class="php font--16" data-trim data-noescape data-line-numbers>
+            // Fill in a few parameters by name, and leave the rest as is.
+            $c = stuff(f: 3.14, s: 'two', ...);
+          </code></pre>
+        </div>
+        <div class="fragment">
+          <pre><code class="php font--16" data-trim data-noescape data-line-numbers>
+            // Thunks
+            $id = 'someId';
+            $value = getSetting($id, default: getDefaultFromDb($id, ...));
+            // getSetting() calls $default() only if necessary.
+          </code></pre>
+        </div>
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>Applying partial application</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $result = scandir('.', SCANDIR_SORT_NONE)
+            |> afilter(fn($x) => str_contains($x, 'page'))
+            |> amap(fn($x) => new SplFileInfo($x))
+            |> sorted(size_sort(...))
+            |> array_reverse(...)
+            |> take(5)
+            |> amap(format_file(...))
+          ;
+        </code></pre>
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>Applying partial application</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $result = scandir('.', SCANDIR_SORT_NONE)
+            |> afilter(str_contains(?, 'page'))
+            |> amap(fn($x) => new SplFileInfo($x))
+            |> sorted(size_sort(...))
+            |> array_reverse(...)
+            |> take(5)
+            |> amap(format_file(...))
+          ;
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Can't partial constructors; that's hard.  Static methods are OK.</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>If you prefer not having utilities</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $result = scandir('.', SCANDIR_SORT_NONE)
+            |> array_filter(?, str_contains(?, 'page'))
+            |> array_map((fn($x) => new SplFileInfo($x), ?)
+            |> sorted(?, size_sort(...))
+            |> array_reverse(...)
+            |> take(5)
+            |> array_map(format_file(...), ?)
+          ;
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Slightly faster than util function version, fewer closures</li>
+            <li>Built-in optimizations for use in pipes.</li>
+            <li>Which you prefer is a matter of taste. I like the utils.</li>
+            <li>Oh yeah, and the utils version works in 8.5 :-)</li>
+          </ul>
+        </aside>
+      </section>
     </section>
 
 
