@@ -862,6 +862,161 @@
         </aside>
       </section>
     </section>
+    <section>
+      <section>
+        <h2>But... why?</h2>
+      </section>
+      <section>
+        <h2>Enables "point-free" style</h2>
+        <blockquote>Tacit programming, also called <em>point-free style</em>, is a programming paradigm in which function definitions do not identify the arguments (or "points") on which they operate.</blockquote>
+        <p><cite>--<a href="https://en.wikipedia.org/wiki/Tacit_programming">Wikipedia</a></cite></p>
+        <p class="fragment oversize">"Skipping needless temp variables"</p>
+      </section>
+      <section data-auto-animate data-auto-animate-id="cases">
+        <h2>From Crell/Serde</h2>
+        <pre data-id="cases"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          enum Cases {
+            private tokenize(string $input): array {
+              return preg_split(
+                '/(^[^A-Z]+|[A-Z][^A-Z]+)/',
+                $input,
+                -1, /* no limit for replacement count */
+                PREG_SPLIT_NO_EMPTY /* don't return empty elements */
+                | PREG_SPLIT_DELIM_CAPTURE /* don't strip anything from output array */
+              );
+            }
+
+            private function splitString(string $input): array {
+              return $this->tokenize(input)
+                |> amap(replace('_', ' '))
+                |> amap(explode(' '))
+                |> flatten(...)
+                |> amap(trim(...))
+                |> afilter()
+            }
+          }
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Slightly modified for simplicity, and to use pipe.</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="cases">
+        <h2>From Crell/Serde</h2>
+        <pre data-id="cases"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          enum Cases {
+            // ...
+            public function convert(string $name): string {
+              return match ($this) {
+                self::Unchanged => $name,
+                self::lowercase => strtolower($name),
+                self::snake_case => $name,
+                  |> $this->splitString(...)
+                  |> implode('_')
+                  |> strtolower(...)
+                ,
+                self::kebab_case => $name,
+                  |> $this->splitString(...)
+                  |> implode('-')
+                  |> strtolower(...)
+                ,
+                self::CamelCase => $name,
+                  |> $this->splitString(...)
+                  |> amap(ucfirst(...))
+                  |> implode('')
+                ,
+              };
+            }
+          }
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>It's "listing the steps" for each option</li>
+            <li>See at a glance what each one is doing</li>
+            <li>Easy to add more (the real code has more)</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="midy">
+        <h2>From Crell/MiDy</h2>
+        <pre data-id="midy"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          class PageData {
+            private array $files = [
+              new File(tags: ['a', 'b', 'c']),
+              new File(tags: ['c', 'd', 'e']),
+              new File(tags: ['x', 'y', 'a']),
+            ];
+
+            public array $tags {
+              get => $this->arr
+                |> array_column(?, 'tags')  // Gets an array of arrays
+                |> flatten(...)             // Flatten that array
+                |> array_unique(...)        // Remove duplicates
+                |> array_values(...)        // Reindex the array.
+            }
+            // ...
+          }
+        </code></pre>
+        <div class="fragment">
+          <h3>Compare with</h3>
+          <pre data-id="midy"><code class="php font--18" data-trim data-noescape data-line-numbers>
+            array_values(array_unique(array_merge(...array_column($arr, 'tags'))));
+          </code></pre>
+        </div>
+        <p class="fragment">Blech</p>
+        <aside class="notes">
+          <ul>
+            <li>Again, simplified</li>
+            <li>Not a temp variable in sight!</li>
+            <li>Very self-documenting</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="streams">
+        <h2>Inspiration for a streams API?</h2>
+        <pre data-id="streams"><code class="php font--16" data-trim data-noescape data-line-numbers>
+          function decode_rot13($fp): \Generator {
+            while ($c = fgetc($fp)) yield str_rot13($c);
+          }
+
+          // Takes an iterable of strings and returns a line-buffering version of it.
+          function lines_from_charstream(iterable $it): \Closure {
+            $buffer = '';
+            return static function () use ($it, &$buffer) {
+              foreach ($it as $c) {
+                $buffer .= $c;
+                while (($pos = strpos($buffer, PHP_EOL)) !== false) {
+                  yield substr($buffer, 0, $pos);
+                  $buffer = substr($buffer, $pos);
+                }
+              }
+            };
+          }
+
+          $result = fopen('pipes.csv', 'rb') // No variable, so closes automatically at GC
+            |> decode_rot13(...)
+            |> lines_from_charstream(...)
+            |> map(str_getcsv(...))
+            |> map(Product::create(...))
+            |> map($repo->save(...))
+          ;
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Assumes map() works with iterables, not just arrays</li>
+            <li>Silly example, obviously</li>
+            <li>With the right tools, can build up very compact stream processing pipelines</li>
+          </ul>
+        </aside>
+      </section>
+    </section>
+    <section>
+      <section>
+        <h2></h2>
+        Stuff about Lifting functions here.  maybe, either, etc.
+      </section>
+    </section>
 
 
     <div style="display:none">
