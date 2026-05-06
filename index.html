@@ -507,6 +507,9 @@
           </ul>
         </aside>
       </section>
+      <section>
+        <h2>Higher-order functions</h2>
+        <img src="assets/yo-dawg-functions.jpg" alt="Yo dawg. I heard you liked functions, so I passed a function into your function to make a higher-order function."></section>
       <section data-auto-animate data-auto-animate-id="pipes">
         <h3>Partial application with higher order functions</h3>
         <pre data-id="pipes-util"><code class="php font--16" data-trim data-noescape data-line-numbers>
@@ -1013,9 +1016,347 @@
     </section>
     <section>
       <section>
-        <h2></h2>
-        Stuff about Lifting functions here.  maybe, either, etc.
+        <h2>Could we go further...?</h2>
       </section>
+      <section>
+        <h2>Limits of Pipes</h2>
+        <img src="assets/plug-compatible.webp" alt="A US electrical plug, being plugged into a US electrical extension cord">
+        <aside class="notes">
+          <ul>
+            <li>Works great when the output of func1 is the same as the input of func2.</li>
+            <li>But what if it isn't?</li>
+            <li>Need an adapter!</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="adapter">
+        <h2>Inline adapter</h2>
+        <pre data-id="adapter-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          function getUserEntity(int $id): UserEntity { }
+
+          function serializeUserDto(UserDto $user): string { }
+        </code></pre>
+        <pre data-id="adapter-use"><code class="php font--16" data-trim data-noescape data-line-numbers>
+          // Type error fail!
+          print $id |> getUserEntity(...) |> serializeUserDto(...);
+        </code></pre>
+      </section>
+      <section data-auto-animate data-auto-animate-id="adapter">
+        <h2>Inline adapter</h2>
+        <pre data-id="adapter-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          function getUserEntity(int $id): UserEntity { }
+          function serializeUserDto(UserDto $user): string { }
+          function userEntityToDto(UserEntity $user): UserDto { }
+        </code></pre>
+        <pre data-id="adapter-use"><code class="php font--16" data-trim data-noescape data-line-numbers>
+          // Type match win!
+          print $id |> getUserEntity(...) |> userEntityToDto(...) |> serializeUserDto(...);
+        </code></pre>
+        <p class="fragment">Nice that the function names are so self-documenting...</p>
+      </section>
+      <section data-auto-animate data-auto-animate-id="adapter">
+        <h2>Wrapping adapter</h2>
+        <pre data-id="adapter-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          function getUserEntity(int $id): ?UserEntity { }
+          function serializeUserDto(UserDto $user): string { }
+          function userEntityToDto(UserEntity $user): ?UserDto { }
+        </code></pre>
+        <pre data-id="adapter-use"><code class="php font--16" data-trim data-noescape data-line-numbers>
+          // Type match fail (maybe).
+          print $id |> getUserEntity(...) |> userEntityToDto(...) |> serializeUserDto(...);
+        </code></pre>
+        <p class="fragment">Now what...?</p>
+        <aside class="notes">
+          <ul>
+            <li>load function returns null on no-user-found</li>
+            <li>adapter returns null if access error or something</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="adapter">
+        <h2>Bad/ugly answer</h2>
+        <pre data-id="adapter-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          function getUserEntity(int $id): ?UserEntity { }
+          function serializeUserDto(UserDto $user): string { }
+          function userEntityToDto(UserEntity $user): ?UserDto { }
+        </code></pre>
+        <pre data-id="adapter-use"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $user = getUserEntity($id);
+          if ($user !== null) {             // Maybe there's a user?
+            $dto = userEntityToDto($user);
+            if ($dto !== null) {            // Maybe there's a dto?
+              print serializeUserDto($dto);
+            }
+          }
+        </code></pre>
+        <ul>
+          <li class="fragment">Deep nesting</li>
+          <li class="fragment">Repetitive</li>
+          <li class="fragment">All those temp vars</li>
+          <li class="fragment">... So let's factor out the common bits</li>
+        </ul>
+      </section>
+      <section data-auto-animate data-auto-animate-id="adapter">
+        <h2>Build a "lift" function</h2>
+        <pre data-id="adapter-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          function getUserEntity(int $id): ?UserEntity { }
+          function serializeUserDto(UserDto $user): string { }
+          function userEntityToDto(UserEntity $user): ?UserDto { }
+
+          function maybe(\Closure $fn): \Closure {
+            return fn($val) => $val === null ? null : $fn($val);
+          }
+        </code></pre>
+        <pre data-id="adapter-use"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $user = getUserEntity($id);
+          if ($user !== null) {             // Maybe there's a user?
+            $dto = userEntityToDto($user);
+            if ($dto !== null) {            // Maybe there's a dto?
+              print serializeUserDto($dto);
+            }
+          }
+        </code></pre>
+        <p class="fragment">"Lifts" code from accepting <code>value</code> to <code>?value</code></p>
+      </section>
+      <section data-auto-animate data-auto-animate-id="adapter">
+        <h2>"Lift" your functions</h2>
+        <pre data-id="adapter-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          function getUserEntity(int $id): ?UserEntity { }
+          function serializeUserDto(UserDto $user): string { }
+          function userEntityToDto(UserEntity $user): ?UserDto { }
+
+          function maybe(\Closure $fn): \Closure {
+            return static fn($val) => $val === null ? null : $fn($val);
+          }
+        </code></pre>
+        <pre data-id="adapter-use"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          print $id
+            |> getUserEntity(...)
+            |> maybe(userEntityToDto(...))
+            |> maybe(serializeUserDto(...))
+            ?? '';
+        </code></pre>
+        <p class="fragment"><code>|></code> binds higher than <code>??</code></p>
+        <aside class="notes">
+          <ul>
+            <li>What's being piped is now NOT your functions, but many instances of the closure created inside maybe().</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <p class="oversize">But what if we want more details than just <code>null</code>?</p>
+      </section>
+      <section>
+        <h2>Validate a username</h2>
+        <ul>
+          <li>Only care about lower-case form</li>
+          <li>Not already in use</li>
+          <li>Start with a letter</li>
+          <li>Be at least three characters long</li>
+          <li>Not contain non-alphanumeric characters</li>
+          <li class="fragment">...And we care which one failed</li>
+        </ul>
+      </section>
+      <section data-auto-animate data-auto-animate-id="either">
+        <h2>Setting up</h2>
+        <pre data-id="either-types"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          enum ValidationError {
+            case StringTooShort;
+            case UsernameExists;
+            case InvalidCharacters;
+            case DoesNotStartWithLetter;
+          }
+        </code></pre>
+        <pre data-id="either-funcs"><code class="php font--16" data-trim data-noescape data-line-numbers>
+          function lengthCheck(string $s, int $len): string|ValidationError {
+            return strlen($s) >= $len ? $s : ValidationError::StringTooShort;
+          }
+
+          function existsCheck(string $s): string|ValidationError {
+            // Use real code here, obviously...
+            return in_array($s, [...]) ? ValidationError::UsernameExists : $s;
+          }
+
+          function characterCheck(string $regex, string $s): string|ValidationError {
+            return preg_match($regex, $s) ? $s : ValidationError::InvalidCharacters;
+          }
+
+          function startsWithLetter(string $s): string|ValidationError {
+            return ctype_alpha($s[0]) ? $s : ValidationError::DoesNotStartWithLetter;
+          }
+        </code></pre>
+      </section>
+      <section data-auto-animate data-auto-animate-id="either">
+        <h2>Naive usage</h2>
+        <pre data-id="either-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          function lengthCheck(string $s, int $len): string|ValidationError {}
+          function existsCheck(string $s): string|ValidationError {}
+          function characterCheck(string $regex, string $s): string|ValidationError {}
+          function startsWithLetter(string $s): string|ValidationError {}
+        </code></pre>
+        <pre data-id="either-use"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $result = 'ABC123'
+            |> strtolower(...)
+            |> lengthCheck(? , 3)
+            |> existsCheck(...)
+            |> characterCheck('/^[a-zA-Z0-9]*$/', ?))
+            |> startsWithLetter(...)
+          ;
+        </code></pre>
+        <p>Works great on the happy path; type errors on unhappy path</p>
+        <aside class="notes">
+          <ul>
+            <li>Note use of PFA to handle multi-param functions</li>
+          </ul>
+        </aside>
+      </section>
+      <section data-auto-animate data-auto-animate-id="either">
+        <h2>New tools</h2>
+        <pre data-id="either-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          function either(\Closure $fn): \Closure
+          {
+            return static fn(mixed $val) => $val instanceof Err ? $val : $fn($val);
+          }
+        </code></pre>
+        <pre data-id="either-use"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $result = 'ABC123'
+            |> strtolower(...)
+            |> either(lengthCheck(? , 3))
+            |> either(existsCheck(...))
+            |> either(characterCheck('/^[a-zA-Z0-9]*$/', ?)))
+            |> either(startsWithLetter(...))
+          ;
+        </code></pre>
+        <p>Works fine on all paths</p>
+      </section>
+      <section data-auto-animate data-auto-animate-id="either">
+        <h2>Handling the result</h2>
+        <pre data-id="either-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          function either(\Closure $fn): \Closure
+          {
+            return static fn(mixed $val) => $val instanceof Err ? $val : $fn($val);
+          }
+        </code></pre>
+        <pre data-id="either-use"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $result = 'ABC123'
+            |> strtolower(...)
+            |> either(lengthCheck(? , 3))
+            |> either(existsCheck(...))
+            |> either(characterCheck('/^[a-zA-Z0-9]*$/', ?)))
+            |> either(startsWithLetter(...))
+          ;
+
+          match ($result) {
+            ValidationError::StringTooShort => output('String must be 3 chars'),
+            ValidationError::UsernameExists => output('That username already exists'),
+            ValidationError::InvalidCharacters => output('Only alphanumeric chars are allowed'),
+            ValidationError::DoesNotStartWithLetter => output('Name must start with a letter'),
+            default => saveToDb($result),
+          };
+        </code></pre>
+        <p>Or whatever type-aware handling you want</p>
+      </section>
+      <section data-auto-animate data-auto-animate-id="either">
+        <h2>Benefits</h2>
+        <pre data-id="either-use"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $result = 'ABC123'
+            |> strtolower(...)
+            |> either(lengthCheck(? , 3))
+            |> either(existsCheck(...))
+            |> either(characterCheck('/^[a-zA-Z0-9]*$/', ?)))
+            |> either(startsWithLetter(...))
+          ;
+        </code></pre>
+        <ul>
+          <li class="fragment">Trivial to add/remove steps</li>
+          <li class="fragment">Lots of tiny little functions</li>
+          <li class="fragment">=> Super easy to test!</li>
+          <li class="fragment">Easy to read and self-documenting</li>
+        </ul>
+      </section>
+      <section>
+        <p>But what if I want to collect all errors, not just one?</p>
+      </section>
+      <section data-auto-animate data-auto-animate-id="either">
+        <h2>Logging the result</h2>
+        <pre data-id="either-types"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          class ValidationLog {
+            public bool $valid { get => $this->errors === []; }
+
+            public function __construct(
+              readonly public string $string,
+              readonly public array  $errors = []
+            ) {}
+          }
+        </code></pre>
+        <pre data-id="either-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          function logError(\Closure $fn): \Closure {
+            return static function (mixed $val) use ($fn) {
+              if (! $val instanceof ValidationLog) {
+                $val = new ValidationLog($val);
+              }
+              $result = $fn($val->string);
+              if ($result instanceof ValidationError) {
+                return new ValidationLog($val->string, [...$val->errors, $result]);
+              }
+              return $val;
+            };
+          }
+        </code></pre>
+      </section>
+      <section data-auto-animate data-auto-animate-id="either">
+        <h2>Update the pipe</h2>
+        <pre data-id="either-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          function logError(\Closure $fn): \Closure {
+            return static function (mixed $val) use ($fn) {
+              if (! $val instanceof ValidationLog) {
+                $val = new ValidationLog($val);
+              }
+              $result = $fn($val->string);
+              if ($result instanceof ValidationError) {
+                return new ValidationLog($val->string, [...$val->errors, $result]);
+              }
+              return $val;
+            };
+          }
+        </code></pre>
+        <pre data-id="either-use"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          $result = 'ABC123'
+            |> strtolower(...)
+            |> logError(lengthCheck(? , 3))
+            |> logError(existsCheck(...))
+            |> logError(characterCheck('/^[a-zA-Z0-9]*$/', ?)))
+            |> logError(startsWithLetter(...))
+          ;
+          if (! $result->valid) {
+            output($result->errors);
+            return;
+          }
+          // ...
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>All the same benefits as before</li>
+            <li>Didn't need to update the validators!</li>
+          </ul>
+        </aside>
+      </section>
+      <section>
+        <h2>Common pattern</h2>
+        <ul>
+          <li class="fragment">Concatenating functions</li>
+          <li class="fragment">With extra "context", which could be logic</li>
+          <li class="fragment">Functions are from <code>A</code> to <code>A-and-stuff</code></li>
+        </ul>
+        <p class="fragment">What shall we call this pattern?</p>
+      </section>
+      <section>
+        <h3>Surprise, this is a Monad talk!</h3>
+        <video preload="auto" class="stretch" data-autoplay>
+          <source src="assets/obama-mic-drop.mp4" data-credit="" />
+        </video>
+      </section>
+
     </section>
 
 
