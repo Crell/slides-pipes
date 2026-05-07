@@ -12,7 +12,7 @@
 
   <link rel="stylesheet" href="custom/custom-theme.css" id="theme" />
 
-  <!-- Theme used for syntax highlighted code -->
+  <!-- Theme used for syntax-highlighted code -->
   <link rel="stylesheet" href="plugin/highlight/github.css" media="screen and (prefers-color-scheme: light)">
   <link rel="stylesheet" href="plugin/highlight/github-dark.css" media="screen and (prefers-color-scheme: dark)">
 
@@ -49,8 +49,8 @@
           <li style="margin-top: 1em;">PHP-FIG Core Committee</li>
           <li style="margin-top: 1em;">PHP Core Contributor</li>
           <li style="margin-top: 1em;">General purpose pedant</li>
-          <li style="margin-top: 1em;">Available for hire!</li>
           <li style="margin-top: 1em;"><a href="https://bit.ly/fn-php"><em>Thinking Functionally in PHP</em></a></li>
+          <li style="margin-top: 1em;">Available for hire!</li>
         </ul>
       </div>
     </section>
@@ -91,6 +91,7 @@
         <aside class="notes">
           <ul>
             <li>Didn't have primitive types or return types yet</li>
+            <li>Create a one-off block of code to be used later</li>
           </ul>
         </aside>
       </section>
@@ -107,6 +108,11 @@
 
          print $fn(2, 3); // 10
         </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Please don't use references.</li>
+          </ul>
+        </aside>
       </section>
       <section data-auto-animate data-auto-animate-id="closures">
         <h3>How closures really work</h3>
@@ -222,7 +228,7 @@
     <section>
       <section>
         <h2>2021</h2>
-        <p><img src="assets/php81-logo.svg" alt="PHP 8.1"></p>
+        <p style="background: #6b58ff;"><img src="assets/php81-logo.svg" alt="PHP 8.1"></p>
         <p class="oversize">PHP 8.1: Now with per-release logos!</p>
       </section>
       <section data-auto-animate data-auto-animate-id="closures">
@@ -285,7 +291,7 @@
       </section>
       <section>
         <p class="oversize">This was the consolation prize</p>
-        <p class="fragment oversize">We tried to get pipes and Parital Function Application, but failed</p>
+        <p class="fragment oversize">We tried to get pipes and Parital Function Application,<br />but failed</p>
         <p class="fragment oversize">Wait, tried to get what...?</p>
       </section>
     </section>
@@ -298,14 +304,26 @@
       <section>
         <h2>Pipes</h2>
         <img src="assets/super-mario-pipe.png" alt="A Warp Pipe from Super Mario Brothers">
+        <aside class="notes">
+          <ul>
+            <li>Show of hands, who just heard the sound effect?</li>
+          </ul>
+        </aside>
       </section>
       <section data-auto-animate data-auto-animate-id="pipes">
         <h3>This is fugly, but common</h3>
         <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
         $arr = ['A', 'B', 'C', 'D', 'E'];
 
-        $result = array_values(array_filter(is_odd(...), array_map(fn(string $x): bool => ord($x), $arr)));
-
+        $result = array_values(
+          array_filter(
+            is_odd(...),
+            array_map(
+              fn(string $x): bool => ord($x),
+              $arr
+            )
+          )
+        );
         </code></pre>
         <aside class="notes">
           <ul>
@@ -338,7 +356,7 @@
 
           $result = $arr
             |> (fn($x) => array_map(ord(...), $x))
-            |> (fn($x) => array_filter(is_odd(...), $x)
+            |> (fn($x) => array_filter(is_odd(...), $x))
             |> array_values(...)
           ;
         </code></pre>
@@ -412,6 +430,11 @@
           <li>Filter to just those that have "page" in the name</li>
           <li>Grab just the size, owner, and filename</li>
         </ol>
+        <aside class="notes">
+          <ul>
+            <li>ls gives us columns of data, in PHP we have to instantiate the object</li>
+          </ul>
+        </aside>
       </section>
       <section data-auto-animate data-auto-animate-id="pipes">
         <h3>In PHP, step 4</h3>
@@ -439,6 +462,11 @@
           <li>Grab just the size, owner, and filename</li>
           <li>Sort numerically, in descending order</li>
         </ol>
+        <aside class="notes">
+          <ul>
+            <li>usort() sorts in place, so we have to add a wrapper to return the sorted value.</li>
+          </ul>
+        </aside>
       </section>
       <section data-auto-animate data-auto-animate-id="pipes">
         <h3>In PHP, step 5</h3>
@@ -502,7 +530,7 @@
         <aside class="notes">
           <ul>
             <li>This is OK, but the single-arg requirement means lots of extra floatsam</li>
-            <li>What can we do about it?</li>'
+            <li>What can we do about it?</li>
             <li>Two options, present and future</li>
           </ul>
         </aside>
@@ -513,10 +541,11 @@
       <section data-auto-animate data-auto-animate-id="pipes">
         <h3>Partial application with higher order functions</h3>
         <pre data-id="pipes-util"><code class="php font--16" data-trim data-noescape data-line-numbers>
-        // ...
-
         function sorted(\Closure $sorter): \Closure {
-          return fn(array $a) => usort($a, $sorter);
+          return function(array $a) use ($sorter) {
+            usort($a, $sorter);
+            return $a;
+          }
         }
         </code></pre>
         <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="4">
@@ -585,7 +614,7 @@
         </code></pre>
         <aside class="notes">
           <ul>
-            <li>Another simple one, though doesn't fix everything</li>
+            <li>Another simple one, though, doesn't fix everything</li>
           </ul>
         </aside>
       </section>
@@ -676,7 +705,7 @@
     <section>
       <section>
         <h2>2026</h2>
-        <p class="oversize">Image not found</p>
+        <p class="oversize"><img src="missing" alt="Image not found"></p>
         <p class="oversize">PHP 8.6: So new it doesn't even have a logo yet</p>
       </section>
       <section>
@@ -705,7 +734,7 @@
           <ul>
             <li>Seriously, that's the feature</li>
             <li>95% of PFA instances will probably be this</li>
-            <li>Let's explore the full feature set</li>
+            <li>Let's explore the full feature set anyway</li>
           </ul>
         </aside>
       </section>
@@ -805,6 +834,12 @@
         </div>
         <div class="fragment">
           <pre><code class="php font--16" data-trim data-noescape data-line-numbers>
+            // Just reference a function/method, aka first-class-callables.
+            $c = stuff(...);
+          </code></pre>
+        </div>
+        <div class="fragment">
+          <pre><code class="php font--16" data-trim data-noescape data-line-numbers>
             // Thunks
             $id = 'someId';
             $value = getSetting($id, default: getDefaultFromDb($id, ...));
@@ -880,13 +915,7 @@
         <pre data-id="cases"><code class="php font--18" data-trim data-noescape data-line-numbers>
           enum Cases {
             private tokenize(string $input): array {
-              return preg_split(
-                '/(^[^A-Z]+|[A-Z][^A-Z]+)/',
-                $input,
-                -1, /* no limit for replacement count */
-                PREG_SPLIT_NO_EMPTY /* don't return empty elements */
-                | PREG_SPLIT_DELIM_CAPTURE /* don't strip anything from output array */
-              );
+              return preg_split('/(^[^A-Z]+|[A-Z][^A-Z]+)/', $input, -1, PREG_SPLIT_NO_EMPTY|PREG_SPLIT_DELIM_CAPTURE);
             }
 
             private function splitString(string $input): array {
@@ -902,6 +931,7 @@
         <aside class="notes">
           <ul>
             <li>Slightly modified for simplicity, and to use pipe.</li>
+            <li>tokenize takes a CamelCase string and chops it up into an array</li>
           </ul>
         </aside>
       </section>
@@ -1007,6 +1037,9 @@
         </code></pre>
         <aside class="notes">
           <ul>
+            <li>decode_rot13() takes a stream, decodes it.</li>
+            <li>lines_from_charstream() turns a character iterable into a line-break-delimited string iterable</li>
+            <li>Don't worry about details...</li>
             <li>Assumes map() works with iterables, not just arrays</li>
             <li>Silly example, obviously</li>
             <li>With the right tools, can build up very compact stream processing pipelines</li>
@@ -1023,9 +1056,9 @@
         <img src="assets/plug-compatible.webp" alt="A US electrical plug, being plugged into a US electrical extension cord">
         <aside class="notes">
           <ul>
-            <li>Works great when the output of func1 is the same as the input of func2.</li>
+            <li>Works great when the output type of func1 is the same as the input type of func2.</li>
             <li>But what if it isn't?</li>
-            <li>Need an adapter!</li>
+            <li>Need an adapter!  Two kinds...</li>
           </ul>
         </aside>
       </section>
@@ -1040,6 +1073,12 @@
           // Type error fail!
           print $id |> getUserEntity(...) |> serializeUserDto(...);
         </code></pre>
+        <p class="fragment">Don't send internal entities on the wire</p>
+        <aside class="notes">
+          <ul>
+            <li>Our data model and a 3rd party data model are slightly different, of course</li>
+          </ul>
+        </aside>
       </section>
       <section data-auto-animate data-auto-animate-id="adapter">
         <h2>Inline adapter</h2>
@@ -1055,7 +1094,7 @@
         <p class="fragment">Nice that the function names are so self-documenting...</p>
       </section>
       <section data-auto-animate data-auto-animate-id="adapter">
-        <h2>Wrapping adapter</h2>
+        <h2>But what about nulls/errors?</h2>
         <pre data-id="adapter-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
           function getUserEntity(int $id): ?UserEntity { }
           function serializeUserDto(UserDto $user): string { }
@@ -1116,7 +1155,7 @@
             }
           }
         </code></pre>
-        <p class="fragment">"Lifts" code from accepting <code>value</code> to <code>?value</code></p>
+        <p class="fragment">"Lifts" a function from accepting <code>TYPE</code> to <code>?TYPE</code></p>
       </section>
       <section data-auto-animate data-auto-animate-id="adapter">
         <h2>"Lift" your functions</h2>
@@ -1199,7 +1238,7 @@
             |> strtolower(...)
             |> lengthCheck(? , 3)
             |> existsCheck(...)
-            |> characterCheck('/^[a-zA-Z0-9]*$/', ?))
+            |> characterCheck('/^[a-zA-Z0-9]*$/', ?)
             |> startsWithLetter(...)
           ;
         </code></pre>
@@ -1285,7 +1324,7 @@
 
             public function __construct(
               readonly public string $string,
-              readonly public array  $errors = []
+              readonly public array $errors = []
             ) {}
           }
         </code></pre>
@@ -1355,8 +1394,14 @@
         <video preload="auto" class="stretch" data-autoplay>
           <source src="assets/obama-mic-drop.mp4" data-credit="" />
         </video>
+        <aside class="notes">
+          <ul>
+            <li>May not follow monad laws exactly, but this is the spirit of monads</li>
+            <li>Monads are "function concatenation with extra context"</li>
+            <li>We just had a monad talk at a PHP conf, thanks to a little compiler syntax sugar</li>
+          </ul>
+        </aside>
       </section>
-
     </section>
 
 
@@ -1391,7 +1436,6 @@
           <h2>Larry Garfield</h2>
           <h2><a href="https://phpc.social/@Crell">@Crell@phpc.social</a></h2>
         </div>
-        <!--
         <div style="grid-area: left">
           <h2>All about PHP 8!</h2>
           <p><a href="https://bit.ly/php80">https://bit.ly/php80</a></p>
@@ -1402,7 +1446,6 @@
           <p><a href="https://bit.ly/fn-php">https://bit.ly/fn-php</a></p>
           <p><a href="https://bit.ly/fn-php"><img src="assets/thinking-functionally.png" width="175px;" alt="Cover of Thinking Functionally in PHP" /></a></p>
         </div>
-        -->
       </div>
       <h3><a href="https://www.garfieldtech.com/">https://www.garfieldtech.com/</a></h3>
     </section>
