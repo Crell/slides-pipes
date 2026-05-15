@@ -379,6 +379,27 @@
           <li class="fragment">The more steps there are, the more it helps</li>
         </ul>
       </section>
+      <section data-auto-animate data-auto-animate-id="pipes">
+        <h3>Supports any type of callable</h3>
+        <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers>
+          // Please don't use these.
+          $foo |> 'bar';
+          $foo |> [$obj, 'bar'];
+
+          // Do use these.
+          $foo |> bar(...);
+          $foo |> $obj->bar(...);
+          $foo |> $invokableObject;
+          $foo |> function($x) { ... };
+          $foo |> (fn($X) => /* */);
+        </code></pre>
+        <aside class="notes">
+          <ul>
+            <li>Supports any callable</li>
+            <li>PHP's old callable syntax was lame, stick to Closures and invokables</li>
+          </ul>
+        </aside>
+      </section>
       <section data-auto-animate data-auto-animate-id="shell-pipes">
         <h3>Just like Unix pipes</h3>
         <pre data-id="shell-pipes"><code class="shell font--18" data-trim data-noescape>
@@ -518,7 +539,7 @@
             |> (fn($v) => sorted($v, size_sort(...)))
             |> array_reverse(...)
             |> (fn($v) => array_slice($v, 0, 5))
-            |> (fn($v) => array_map(fn(SplFileInfo $x) => sprintf('%d %s %s, $x->getSize(), $x->getOwner(), $x->getFilename()))
+            |> (fn($v) => array_map(fn(SplFileInfo $x) => sprintf('%d %s %s', $x->getSize(), $x->getOwner(), $x->getFilename()))
           ;
         </code></pre>
         <ol>
@@ -557,7 +578,7 @@
             |> sorted(size_sort(...))
             |> array_reverse(...)
             |> (fn($v) => array_slice($v, 0, 5))
-            |> (fn($v) => array_map(fn(SplFileInfo $x) => sprintf('%d %s %s, $x->getSize(), $x->getOwner(), $x->getFilename()))
+            |> (fn($v) => array_map(fn(SplFileInfo $x) => sprintf('%d %s %s', $x->getSize(), $x->getOwner(), $x->getFilename()))
           ;
         </code></pre>
         <aside class="notes">
@@ -572,8 +593,6 @@
       <section data-auto-animate data-auto-animate-id="pipes">
         <h3>Partial application is easy</h3>
         <pre data-id="pipes-util"><code class="php font--16" data-trim data-noescape data-line-numbers>
-        // ...
-
         function take(int $count): \Closure {
           return fn(array $v) => array_slice($v, 0, 5);
         }
@@ -585,7 +604,7 @@
             |> sorted(size_sort(...))
             |> array_reverse(...)
             |> take(5)
-            |> (fn($v) => array_map(fn(SplFileInfo $x) => sprintf('%d %s %s, $x->getSize(), $x->getOwner(), $x->getFilename()))
+            |> (fn($v) => array_map(fn(SplFileInfo $x) => sprintf('%d %s %s', $x->getSize(), $x->getOwner(), $x->getFilename()))
           ;
         </code></pre>
         <aside class="notes">
@@ -598,8 +617,6 @@
       <section data-auto-animate data-auto-animate-id="pipes">
         <h3>Higher order functions are so simple</h3>
         <pre data-id="pipes-util"><code class="php font--16" data-trim data-noescape data-line-numbers>
-        // ...
-
         function afilter(\Closure $filter): \Closure {
           fn($v) => array_filter($v, $filter);
         }
@@ -611,7 +628,7 @@
             |> sorted(size_sort(...))
             |> array_reverse(...)
             |> take(5)
-            |> (fn($v) => array_map(fn(SplFileInfo $x) => sprintf('%d %s %s, $x->getSize(), $x->getOwner(), $x->getFilename()))
+            |> (fn($v) => array_map(fn(SplFileInfo $x) => sprintf('%d %s %s', $x->getSize(), $x->getOwner(), $x->getFilename()))
           ;
         </code></pre>
         <aside class="notes">
@@ -623,8 +640,6 @@
       <section data-auto-animate data-auto-animate-id="pipes">
         <h3>You can quickly make a lot of them</h3>
         <pre data-id="pipes-util"><code class="php font--16" data-trim data-noescape data-line-numbers>
-        // ...
-
         function amap(\Closure $mapper): \Closure {
           return fn(array $v) => array_map($mapper, $v);
         }
@@ -636,7 +651,7 @@
             |> sorted(size_sort(...))
             |> array_reverse(...)
             |> take(5)
-            |> amap(fn(SplFileInfo $x) => sprintf('%d %s %s, $x->getSize(), $x->getOwner(), $x->getFilename())
+            |> amap(fn(SplFileInfo $x) => sprintf('%d %s %s', $x->getSize(), $x->getOwner(), $x->getFilename())
           ;
         </code></pre>
         <aside class="notes">
@@ -648,10 +663,8 @@
       <section data-auto-animate data-auto-animate-id="pipes">
         <h3>Or just utility functions/methods</h3>
         <pre data-id="pipes-util"><code class="php font--16" data-trim data-noescape data-line-numbers>
-        // ...
-
         function format_file(\SplFileInfo $f): string {
-          return sprintf('%d %s %s, $x->getSize(), $x->getOwner(), $x->getFilename());
+          return sprintf('%d %s %s', $x->getSize(), $x->getOwner(), $x->getFilename());
         }
         </code></pre>
         <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="7">
@@ -745,25 +758,26 @@
         <pre><code class="php font--16" data-trim data-noescape data-line-numbers>
           function f(int $a, float $b, Point $c, string $d, int $e, int $opt = 0): string {}
         </code></pre>
-        <p class="oversize fragment">f(<span class="placeholder-single">?</span>, 3.14, <span class="placeholder-single">?</span>, 'narf', e: <span class="placeholder-single">?</span>, <span class="placeholder-multi">...</span>)</p>
+        <p class="oversize fragment">f(<span class="placeholder-single">?</span>, 3.14, $p1, 'narf', e: <span class="placeholder-single">?</span>, <span class="placeholder-multi">...</span>)</p>
         <div class="fragment">
           <p class="oversize">⇓</p>
           <pre><code class="php font--18" data-trim data-noescape data-line-numbers>
-          function (int $a, Point $c, int $e, int $opt = 0): string {
-            return f($a, 3.14, $c, 'narf', $e, $opt);
+          function (int $a, int $e, int $opt = 0) use ($p1): string {
+            return f($a, 3.14, $p1, 'narf', $e, $opt);
           };
         </code></pre>
         </div>
         <ul>
           <li class="fragment"><code class="placeholder-single">?</code>: Copy this parameter</li>
           <li class="fragment"><code class="placeholder-multi">...</code>: Copy "the rest of the parameters"</li>
-          <li class="fragment">A value: Use this parameter</li>
+          <li class="fragment">A value/variable: Use this parameter</li>
         </ul>
         <aside class="notes">
           <ul>
             <li>Materializes out to a closure at runtime, and cached</li>
             <li>Yep, named arguments work</li>
             <li>Works on any type of callable: Function, method, existing closure, invokable object, etc.</li>
+            <li>Will "use" variables from scope automatically, by value.</li>
           </ul>
         </aside>
       </section>
@@ -772,12 +786,12 @@
         <pre><code class="php font--16" data-trim data-noescape data-line-numbers>
           function f(int $a, float $b, Point $c, string $d, int $e, int $opt = 0): string {}
         </code></pre>
-        <p class="oversize fragment">f(b: <span class="placeholder-single">?</span>, a: <span class="placeholder-single">?</span>, d: 'narf', opt: <span class="placeholder-single">?</span>, <span class="placeholder-multi">...</span>)</p>
+        <p class="oversize fragment">f(b: <span class="placeholder-single">?</span>, a: <span class="placeholder-single">?</span>, d: 'narf', opt: <span class="placeholder-single">?</span>, c: $p1, <span class="placeholder-multi">...</span>)</p>
         <div class="fragment">
           <p class="oversize">⇓</p>
           <pre><code class="php font--18" data-trim data-noescape data-line-numbers>
-          function (float $b, int $a, int $opt, Point $c, int $e): string {
-            return f($a, $b, $c, 'narf', $e, $opt);
+          function (float $b, int $a, int $opt, int $e) use ($p1): string {
+            return f($a, $b, $p1, 'narf', $e, $opt);
           };
         </code></pre>
         </div>
@@ -800,8 +814,9 @@
         <div class="fragment">
           <p class="oversize">⇓</p>
           <pre><code class="php font--18" data-trim data-noescape data-line-numbers>
-          function (): string {
-            return f(1, 3.14, new Point(1, 2), 'narf', 5, 6);
+          $__p1 = new Point(1, 2);
+          function () use ($__p1): string {
+            return f(1, 3.14, $__p1, 'narf', 5, 6);
           };
         </code></pre>
         </div>
@@ -904,13 +919,14 @@
     </section>
     <section>
       <section>
-        <h2>But... why?</h2>
+<!--        <h2>But... why?</h2>-->
+        <img src="assets/but-why-trelane.gif" alt="But Why?">
       </section>
       <section>
         <h2>Enables "point-free" style</h2>
         <blockquote>Tacit programming, also called <em>point-free style</em>, is a programming paradigm in which function definitions do not identify the arguments (or "points") on which they operate.</blockquote>
         <p><cite>--<a href="https://en.wikipedia.org/wiki/Tacit_programming">Wikipedia</a></cite></p>
-        <p class="fragment oversize">"Skipping needless temp variables"</p>
+        <p class="fragment oversize">"Skipping needless temp variables<br >to make code more readable"</p>
       </section>
       <section data-auto-animate data-auto-animate-id="cases">
         <h2>From Crell/Serde</h2>
@@ -1015,7 +1031,7 @@
             while ($c = fgetc($fp)) yield str_rot13($c);
           }
 
-          // Takes an iterable of strings and returns a line-buffering version of it.
+          // Takes an iterable of strings and returns a line-buffered version of it.
           function lines_from_charstream(iterable $it): \Closure {
             $buffer = '';
             return static function () use ($it, &$buffer) {
@@ -1086,8 +1102,8 @@
         <h2>Inline adapter</h2>
         <pre data-id="adapter-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
           function getUserEntity(int $id): UserEntity { }
-          function serializeUserDto(UserDto $user): string { }
           function userEntityToDto(UserEntity $user): UserDto { }
+          function serializeUserDto(UserDto $user): string { }
         </code></pre>
         <pre data-id="adapter-use"><code class="php font--16" data-trim data-noescape data-line-numbers>
           // Type match win!
@@ -1099,8 +1115,8 @@
         <h2>But what about nulls/errors?</h2>
         <pre data-id="adapter-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
           function getUserEntity(int $id): ?UserEntity { }
-          function serializeUserDto(UserDto $user): string { }
           function userEntityToDto(UserEntity $user): ?UserDto { }
+          function serializeUserDto(UserDto $user): string { }
         </code></pre>
         <pre data-id="adapter-use"><code class="php font--16" data-trim data-noescape data-line-numbers>
           // Type match fail (maybe).
@@ -1118,8 +1134,8 @@
         <h2>Bad/ugly answer</h2>
         <pre data-id="adapter-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
           function getUserEntity(int $id): ?UserEntity { }
-          function serializeUserDto(UserDto $user): string { }
           function userEntityToDto(UserEntity $user): ?UserDto { }
+          function serializeUserDto(UserDto $user): string { }
         </code></pre>
         <pre data-id="adapter-use"><code class="php font--18" data-trim data-noescape data-line-numbers>
           $user = getUserEntity($id);
@@ -1141,8 +1157,8 @@
         <h2>Build a "lift" function</h2>
         <pre data-id="adapter-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
           function getUserEntity(int $id): ?UserEntity { }
-          function serializeUserDto(UserDto $user): string { }
           function userEntityToDto(UserEntity $user): ?UserDto { }
+          function serializeUserDto(UserDto $user): string { }
 
           function maybe(\Closure $fn): \Closure {
             return fn($val) => $val === null ? null : $fn($val);
@@ -1332,7 +1348,7 @@
         </code></pre>
         <pre data-id="either-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
           function logError(\Closure $fn): \Closure {
-            return static function (mixed $val) use ($fn) {
+            return static function (string|ValidationLog $val) use ($fn) {
               if (! $val instanceof ValidationLog) {
                 $val = new ValidationLog($val);
               }
@@ -1349,7 +1365,7 @@
         <h2>Update the pipe</h2>
         <pre data-id="either-funcs"><code class="php font--18" data-trim data-noescape data-line-numbers>
           function logError(\Closure $fn): \Closure {
-            return static function (mixed $val) use ($fn) {
+            return static function (string|ValidationLog $val) use ($fn) {
               if (! $val instanceof ValidationLog) {
                 $val = new ValidationLog($val);
               }
