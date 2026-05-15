@@ -488,7 +488,7 @@
             |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
             |> (fn($v) => sorted($v, size_sort(...)))
             |> array_reverse(...)
-            |> (fn($v) => array_chunk($v, 5)[0])
+            |> (fn($v) => array_slice($v, 0, 5))
           ;
         </code></pre>
         <ol>
@@ -517,7 +517,7 @@
             |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
             |> (fn($v) => sorted($v, size_sort(...)))
             |> array_reverse(...)
-            |> (fn($v) => array_chunk($v, 5)[0])
+            |> (fn($v) => array_slice($v, 0, 5))
             |> (fn($v) => array_map(fn(SplFileInfo $x) => sprintf('%d %s %s, $x->getSize(), $x->getOwner(), $x->getFilename()))
           ;
         </code></pre>
@@ -556,7 +556,7 @@
             |> (fn($v) => array_map(fn($x) => new SplFileInfo($x))
             |> sorted(size_sort(...))
             |> array_reverse(...)
-            |> (fn($v) => array_chunk($v, 5)[0])
+            |> (fn($v) => array_slice($v, 0, 5))
             |> (fn($v) => array_map(fn(SplFileInfo $x) => sprintf('%d %s %s, $x->getSize(), $x->getOwner(), $x->getFilename()))
           ;
         </code></pre>
@@ -575,7 +575,7 @@
         // ...
 
         function take(int $count): \Closure {
-          return fn(array $v) => array_chunk($v, $count)[0];
+          return fn(array $v) => array_slice($v, 0, 5);
         }
         </code></pre>
         <pre data-id="pipes"><code class="php font--18" data-trim data-noescape data-line-numbers="6">
@@ -888,7 +888,7 @@
             |> array_map((fn($x) => new SplFileInfo($x), ?)
             |> sorted(?, size_sort(...))
             |> array_reverse(...)
-            |> take(5)
+            |> array_slice(?, 0, 5)
             |> array_map(format_file(...), ?)
           ;
         </code></pre>
